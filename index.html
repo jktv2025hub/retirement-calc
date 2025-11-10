@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교사 명예퇴직수당 예상 계산기 (2025 봉급표)</title>
+    <style>
+        /* 이 부분은 웹페이지의 스타일(디자인)입니다 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column; /* 푸터를 하단에 두기 위해 flex 방향 변경 */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .calculator-container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: auto; /* 푸터와의 간격을 위해 추가 */
+            margin-top: auto; /* 푸터와의 간격을 위해 추가 */
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box; /* 패딩이 너비를 초과하지 않도록 함 */
+            background-color: #fff;
+        }
+        .input-group input {
+            text-align: right;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper .unit {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+            pointer-events: none;
+        }
+        .korean-text {
+            font-size: 0.9rem;
+            color: #007bff;
+            margin-top: 0.5rem;
+            height: 1.2em; /* 공간을 미리 잡아둠 */
+            text-align: right;
+        }
+        .sub-note {
+            text-align: left; 
+            color: #777; 
+            margin-top: 0.3rem; 
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        button {
+            width: 100%;
+            padding: 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 2rem;
+            background-color: #e9f5ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            display: none; /* 처음에는 숨김 */
+        }
+        #result-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        #result-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #007bff;
+        }
+        #result-formula {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 1rem;
+            word-break: keep-all;
+            background-color: #fff;
+            padding: 0.8rem;
+            border-radius: 6px;
+            text-align: left; /* 왼쪽 정렬 */
+            line-height: 1.6; /* 줄 간격 */
+        }
+        /* 상세 설명의 구분선 스타일 */
+        #result-formula hr {
+            border: 0;
+            border-top: 1px dashed #ccc;
+            margin: 8px 0;
+        }
+        .warning {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #e74c3c;
+            line-height: 1.5;
+            text-align: center;
+            background-color: #fcf3f3;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        /* 저작권 문구 스타일 */
+        footer {
+            text-align: center;
+            margin-top: 2rem; /* 계산기와 푸터 사이의 간격 */
+            color: #888;
+            font-size: 0.9rem;
+            padding-bottom: 1rem; /* 페이지 하단 여백 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <h1>교사 명예퇴직수당 예상 계산기</h1>
+
+        <div class="input-group">
+            <label for="salarySelect">월봉급액 선택 (2025.1.3. 기준)</label>
+            <select id="salarySelect" onchange="applySelectedSalary()">
+                <option value="0">-- 호봉을 선택하세요 --</option>
+                <option value="6778800">50호봉: 6,778,800원</option>
+                <option value="6700500">49호봉: 6,700,500원</option>
+                <option value="6622200">48호봉: 6,622,200원</option>
+                <option value="6543900">47호봉: 6,543,900원</option>
+                <option value="6465600">46호봉: 6,465,600원</option>
+                <option value="6387300">45호봉: 6,387,300원</option>
+                <option value="6309000">44호봉: 6,309,000원</option>
+                <option value="6230700">43호봉: 6,230,700원</option>
+                <option value="6152400">42호봉: 6,152,400원</option>
+                <option value="6074100">41호봉: 6,074,100원</option>
+                <option value="5995800">40호봉: 5,995,800원</option>
+                <option value="5873900">39호봉: 5,873,900원</option>
+                <option value="5751200">38호봉: 5,751,200원</option>
+                <option value="5628700">37호봉: 5,628,700원</option>
+                <option value="5506400">36호봉: 5,506,400원</option>
+                <option value="5365800">35호봉: 5,365,800원</option>
+                <option value="5224600">34호봉: 5,224,600원</option>
+                <option value="5083700">33호봉: 5,083,700원</option>
+                <option value="4942200">32호봉: 4,942,200원</option>
+                <option value="4803000">31호봉: 4,803,000원</option>
+                <option value="4663600">30호봉: 4,663,600원</option>
+                <option value="4523800">29호봉: 4,523,800원</option>
+                <option value="4384500">28호봉: 4,384,500원</option>
+                <option value="4251300">27호봉: 4,251,300원</option>
+                <option value="4117800">26호봉: 4,117,800원</option>
+                <option value="3989800">25호봉: 3,989,800원</option>
+                <option value="3862300">24호봉: 3,862,300원</option>
+                <option value="3734600">23호봉: 3,734,600원</option>
+                <option value="3607300">22호봉: 3,607,300원</option>
+                <option value="3478900">21호봉: 3,478,900원</option>
+                <option value="3363300">20호봉: 3,363,300원</option>
+                <option value="3247500">19호봉: 3,247,500원</option>
+                <option value="3131900">18호봉: 3,131,900원</option>
+                <option value="3015500">17호봉: 3,015,500원</option>
+                <option value="2904500">16호봉: 2,904,500원</option>
+                <option value="2792000">15호봉: 2,792,000원</option>
+                <option value="2679900">14호봉: 2,679,900원</option>
+                <option value="2567600">13호봉: 2,567,600원</option>
+                <option value="2455700">12호봉: 2,455,700원</option>
+                <option value="2408300">11호봉: 2,408,300원</option>
+                <option value="2387800">10호봉: 2,387,800원</option>
+                <option value="2365500">9호봉: 2,365,500원</option>
+                <option value="2325100">8호봉: 2,325,100원</option>
+                <option value="2267000">7호봉: 2,267,000원</option>
+                <option value="2208600">6호봉: 2,208,600원</option>
+                <option value="2149600">5호봉: 2,149,600원</option>
+                <option value="2090500">4호봉: 2,090,500원</option>
+                <option value="2031900">3호봉: 2,031,900원</option>
+                <option value="1973100">2호봉: 1,973,100원</option>
+                <option value="1915100">1호봉: 1,915,100원</option>
+            </select>
+            <div class="sub-note">
+                * 위 봉급표는 2025.1.3. 기준입니다.<br>
+                * (참고) 2026년 퇴직 시, 2026년에 변경되는 새 봉급표가 적용됩니다.
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="monthlySalary">퇴직일 당시 월봉급액 (본봉) (직접 입력 가능)</label>
+            <div class="input-wrapper">
+                <input type="text" id="monthlySalary" placeholder="0" oninput="formatSalaryInput()">
+                <span class="unit">원</span>
+            </div>
+            <div id="salaryKorean" class="korean-text"></div>
+        </div>
+        
+        <div class="input-group">
+            <label for="remainingMonths">정년 잔여월수</label>
+            <div class="input-wrapper">
+                <input type="number" id="remainingMonths" placeholder="예: 120">
+                <span class="unit">개월</span>
+            </div>
+        </div>
+        
+        <button onclick="calculate()">예상 수당 계산하기</button>
+        
+        <div id="result">
+            <div id="result-text">예상 명예퇴직수당</div>
+            <div id="result-amount">0 원</div>
+            <div id="result-formula"></div>
+        </div>
+
+        <div class="warning">
+            <strong>[매우 중요]</strong><br>
+            제공된 봉급표는 **2025년 기준**입니다. 2026년 2월 말 퇴직 시, 2026년 1월에 변경되는 **새로운 봉급표(2026년 기준)가 적용**되어 명예퇴직수당이 재산정됩니다. (일반적으로 봉급이 인상됩니다.)<br><br>
+            <strong>[주의]</strong><br>
+            본 계산 결과는 법령 산식에 따른 **단순 예상액**입니다. 개인의 근속연수, 지급 상한 규정, 교육청 예산 상황에 따라 실제 수령액과 다를 수 있으므로 **반드시 행정실 및 공무원연금공단에서 확인**하시기 바랍니다.
+        </div>
+    </div> <footer>
+        Copyright © 2025 LeeJaeKyun. All rights reserved.
+    </footer>
+
+
+    <script>
+        // 이 부분은 웹페이지의 동작(계산 로직)입니다
+        
+        // --- 금액을 한글로 변환하는 기능 ---
+        function numberToKorean(numberStr) {
+            if (!numberStr) return "";
+            numberStr = String(numberStr).replace(/[^0-9]/g, '');
+            if (numberStr.length === 0) return "";
+            
+            const digits = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+            const units = ["", "십", "백", "천"];
+            const largeUnits = ["", "만", "억", "조", "경"];
+            
+            let result = "";
+            let num = parseInt(numberStr);
+            
+            if (num === 0) return "영";
+
+            let unitIndex = 0;
+            while (num > 0) {
+                let part = num % 10000;
+                num = Math.floor(num / 10000);
+                
+                if (part > 0) {
+                    let partStr = "";
+                    for (let i = 0; i < 4; i++) {
+                        let digit = part % 10;
+                        part = Math.floor(part / 10);
+                        if (digit > 0) {
+                            partStr = ((digit === 1 && i > 0) ? "" : digits[digit]) + units[i] + partStr;
+                        }
+                    }
+                    result = partStr + largeUnits[unitIndex] + " " + result;
+                }
+                unitIndex++;
+            }
+            result = result.replace(/^일(십|백|천)/, '$1').trim();
+            return result;
+        }
+
+        // --- 월봉급액 입력 시 쉼표(,) 및 한글 변환 처리 ---
+        function formatSalaryInput() {
+            const input = document.getElementById('monthlySalary');
+            let value = input.value;
+            const rawValue = value.replace(/[^0-9]/g, ''); // 숫자 이외의 문자(쉼표 포함) 모두 제거
+            
+            if (rawValue) {
+                input.value = parseInt(rawValue).toLocaleString('ko-KR');
+            } else {
+                input.value = '';
+            }
+            
+            updateKoreanNumber(rawValue);
+
+            // 드롭다운 선택 해제 (직접 입력 시)
+            document.getElementById('salarySelect').value = '0';
+        }
+
+        // --- 한글 금액 표시 업데이트 ---
+        function updateKoreanNumber(rawValue) {
+            const koreanEl = document.getElementById('salaryKorean');
+            if (rawValue && rawValue.length > 0) {
+                koreanEl.innerText = numberToKorean(rawValue) + ' 원';
+            } else {
+                koreanEl.innerText = '';
+            }
+        }
+
+        // --- 호봉 선택 시 적용 ---
+        function applySelectedSalary() {
+            const select = document.getElementById('salarySelect');
+            const input = document.getElementById('monthlySalary');
+            const value = select.value;
+            
+            if (value !== '0') {
+                input.value = parseInt(value).toLocaleString('ko-KR'); // 쉼표 추가
+                updateKoreanNumber(value); // 한글 변환
+            } else {
+                input.value = '';
+                updateKoreanNumber('');
+            }
+        }
+
+        // --- 명예퇴직수당 계산 로직 ---
+        function calculate() {
+            const salaryInput = document.getElementById('monthlySalary');
+            const monthsInput = document.getElementById('remainingMonths');
+            const resultElement = document.getElementById('result');
+            const resultAmountElement = document.getElementById('result-amount');
+            const resultFormulaElement = document.getElementById('result-formula');
+
+            // 쉼표(,)를 제거하고 숫자로 변환
+            const rawSalary = salaryInput.value.replace(/,/g, '');
+            const monthlySalary = parseFloat(rawSalary);
+            const remainingMonths = parseInt(monthsInput.value);
+
+            // 입력값 유효성 검사
+            if (isNaN(monthlySalary) || monthlySalary <= 0 || isNaN(remainingMonths) || remainingMonths <= 0) {
+                alert("월봉급액과 잔여월수를 정확히 입력해주세요.");
+                return;
+            }
+
+            if (remainingMonths < 12) {
+                alert("명예퇴직수당은 정년 잔여기간이 1년(12개월) 이상인 경우에만 신청 대상입니다.");
+                resultElement.style.display = 'none'; // 결과창 숨김
+                return;
+            }
+
+            // --- 계산 과정 변수 선언 ---
+            let payout = 0;
+            let criteriaString = "";     // 적용기준
+            let formulaGeneralString = ""; // 산정산식 (문자)
+            let calculationDetailString = ""; // 계산 설명 (숫자)
+            
+            let factor = 0; // 잔여월수 환산값
+            const baseAmount = monthlySalary * 0.65; // 1단계 (공통)
+            const finalPayout = 0; // 최종 금액 (선언)
+            
+            // 1. 산정 기준액 계산 (공통)
+            const baseAmountRounded = Math.round(baseAmount);
+            let calcStep1 = `1. (A) 산정 기준액:<br> &nbsp; ${monthlySalary.toLocaleString()}원 × 65% = <strong>${baseAmountRounded.toLocaleString()}원</strong>`;
+            let calcStep2 = "";
+            let calcStep3 = "";
+
+            // 2. 잔여월수 구간별 분기
+            if (remainingMonths <= 60) {
+                // Case 1: 1년 ~ 5년 (12~60개월)
+                criteriaString = `<strong>[적용기준]</strong> 정년 잔여 기간 1년~5년 (12~60개월)`;
+                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액 × 65%) × (잔여월수 × 0.5)`;
+                
+                factor = remainingMonths * 0.5;
+                payout = baseAmount * factor;
+                
+                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; ${remainingMonths}개월 × 0.5 = <strong>${factor}</strong>`;
+
+            } else if (remainingMonths <= 120) {
+                // Case 2: 5년 초과 ~ 10년 이하 (61~120개월)
+                criteriaString = `<strong>[적용기준]</strong> 정년 잔여 기간 5년 초과~10년 (61~120개월)`;
+                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액 × 65%) × [30 + ( (잔여월수 - 60) × 0.75 )]`;
+                
+                let excessMonths = remainingMonths - 60;
+                let excessFactor = excessMonths * 0.75;
+                factor = 30 + excessFactor;
+                payout = baseAmount * factor;
+                
+                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; 30 + ( (${remainingMonths} - 60) × 0.75 )<br> &nbsp; = 30 + ${excessFactor} = <strong>${factor}</strong>`;
+
+            } else {
+                // Case 3: 10년 초과 (121개월 이상)
+                criteriaString = `<strong>[적용기준]</strong> 정년 잔여 기간 10년 초과 (121개월 이상)`;
+                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액 × 65%) × [75 + ( (잔여월수 - 120) × 0.25 )]`;
+                
+                let excessMonths = remainingMonths - 120;
+                let excessFactor = excessMonths * 0.25;
+                factor = 75 + excessFactor;
+                payout = baseAmount * factor;
+                
+                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; 75 + ( (${remainingMonths} - 120) × 0.25 )<br> &nbsp; = 75 + ${excessFactor} = <strong>${factor}</strong>`;
+            }
+
+            // 최종 payout 반올림
+            const finalPayoutRounded = Math.round(payout);
+            
+            // 3. 최종 수당 계산 (공통)
+            calcStep3 = `3. ▶ 최종 수당 (A × B):<br> &nbsp; ${baseAmountRounded.toLocaleString()}원 × ${factor} = <strong>${finalPayoutRounded.toLocaleString()}원</strong>`;
+
+            // 4. 모든 설명 문자열 조합
+            calculationDetailString = `<strong>[계산 설명]</strong><br> ${calcStep1} <br> ${calcStep2} <br> ${calcStep3}`;
+            
+            const finalFormulaString = `${criteriaString}
+                                        <hr>
+                                        ${formulaGeneralString}
+                                        <hr>
+                                        ${calculationDetailString}`;
+            
+            // 결과 표시
+            resultAmountElement.innerText = finalPayoutRounded.toLocaleString('ko-KR') + " 원";
+            resultFormulaElement.innerHTML = finalFormulaString; // innerHTML로 설정
+            resultElement.style.display = 'block'; // 결과창 표시
+        }
+    </script>
+
+</body>
+</html>
