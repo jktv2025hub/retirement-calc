@@ -245,10 +245,12 @@
         </div>
 
         <div class="warning">
+            <strong>[적용 산식 안내]</strong><br>
+            본 계산기는 교육청 등에서 장기근속자에게 적용하는 <strong>'월봉급액의 68% × 0.5' (구 산식)</strong>를 기준으로 계산합니다.<br><br>
             <strong>[매우 중요]</strong><br>
-            제공된 봉급표는 **2025년 기준**입니다. 2026년 2월 말 퇴직 시, 2026년 1월에 변경되는 **새로운 봉급표(2026년 기준)가 적용**되어 명예퇴직수당이 재산정됩니다. (일반적으로 봉급이 인상됩니다.)<br><br>
+            제공된 봉급표는 **2025년 기준**입니다. 2026년 2월 말 퇴직 시, 2026년 1월에 변경되는 **새로운 봉급표(2026년 기준)가 적용**되어 명예퇴직수당이 재산정됩니다.<br><br>
             <strong>[주의]</strong><br>
-            본 계산 결과는 법령 산식에 따른 **단순 예상액**입니다. 개인의 근속연수, 지급 상한 규정, 교육청 예산 상황에 따라 실제 수령액과 다를 수 있으므로 **반드시 행정실 및 공무원연금공단에서 확인**하시기 바랍니다.
+            본 계산 결과는 **단순 예상액**이며, 개인의 근속연수, 지급 상한 규정, 교육청 예산 상황에 따라 실제 수령액과 다를 수 있으므로 **반드시 행정실 및 공무원연금공단에서 확인**하시기 바랍니다.
         </div>
     </div> <footer>
         Copyright © 2025 LeeJaeKyun. All rights reserved.
@@ -338,7 +340,7 @@
             }
         }
 
-        // --- 명예퇴직수당 계산 로직 ---
+        // --- ▼▼▼ [수정됨] 68% (구 산식) 기준 계산 로직 ▼▼▼ ---
         function calculate() {
             const salaryInput = document.getElementById('monthlySalary');
             const monthsInput = document.getElementById('remainingMonths');
@@ -363,56 +365,54 @@
                 return;
             }
 
-            // --- 계산 과정 변수 선언 ---
+            // --- 계산 과정 변수 선언 (68% 기준) ---
             let payout = 0;
             let criteriaString = "";     // 적용기준
             let formulaGeneralString = ""; // 산정산식 (문자)
             let calculationDetailString = ""; // 계산 설명 (숫자)
             
             let factor = 0; // 잔여월수 환산값
-            const baseAmount = monthlySalary * 0.65; // 1단계 (공통)
-            const finalPayout = 0; // 최종 금액 (선언)
-            
-            // 1. 산정 기준액 계산 (공통)
+            // 1. (A) 산정 기준액 (월봉급액 × 68% × 0.5 = 월봉급액 × 0.34)
+            const baseAmount = monthlySalary * 0.68 * 0.5; 
             const baseAmountRounded = Math.round(baseAmount);
-            let calcStep1 = `1. (A) 산정 기준액:<br> &nbsp; ${monthlySalary.toLocaleString()}원 × 65% = <strong>${baseAmountRounded.toLocaleString()}원</strong>`;
+            let calcStep1 = `1. (A) 산정 기준액:<br> &nbsp; ${monthlySalary.toLocaleString()}원 × 68% × 0.5 = <strong>${baseAmountRounded.toLocaleString()}원</strong>`;
             let calcStep2 = "";
             let calcStep3 = "";
 
-            // 2. 잔여월수 구간별 분기
+            // 2. 잔여월수 구간별 분기 (68% 기준)
             if (remainingMonths <= 60) {
                 // Case 1: 1년 ~ 5년 (12~60개월)
                 criteriaString = `<strong>[적용기준]</strong> 정년 잔여 기간 1년~5년 (12~60개월)`;
-                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액 × 65%) × (잔여월수 × 0.5)`;
-                
-                factor = remainingMonths * 0.5;
+                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액×68%×0.5) × (정년잔여월수)`;
+
+                factor = remainingMonths;
                 payout = baseAmount * factor;
                 
-                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; ${remainingMonths}개월 × 0.5 = <strong>${factor}</strong>`;
+                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; <strong>${factor}</strong> (잔여월수와 동일)`;
 
             } else if (remainingMonths <= 120) {
                 // Case 2: 5년 초과 ~ 10년 이하 (61~120개월)
                 criteriaString = `<strong>[적용기준]</strong> 정년 잔여 기간 5년 초과~10년 (61~120개월)`;
-                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액 × 65%) × [30 + ( (잔여월수 - 60) × 0.75 )]`;
-                
+                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액×68%×0.5) × [60 + ( (잔여월수 - 60) / 2 )]`;
+
                 let excessMonths = remainingMonths - 60;
-                let excessFactor = excessMonths * 0.75;
-                factor = 30 + excessFactor;
+                let excessFactor = excessMonths / 2;
+                factor = 60 + excessFactor;
                 payout = baseAmount * factor;
                 
-                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; 30 + ( (${remainingMonths} - 60) × 0.75 )<br> &nbsp; = 30 + ${excessFactor} = <strong>${factor}</strong>`;
+                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; 60 + ( (${remainingMonths} - 60) / 2 )<br> &nbsp; = 60 + ${excessFactor} = <strong>${factor}</strong>`;
 
             } else {
                 // Case 3: 10년 초과 (121개월 이상)
                 criteriaString = `<strong>[적용기준]</strong> 정년 잔여 기간 10년 초과 (121개월 이상)`;
-                formulaGeneralString = `<strong>[산정산식]</strong> (월봉급액 × 65%) × [75 + ( (잔여월수 - 120) × 0.25 )]`;
+                formulaGeneralString = `<strong>[산정산식]</strong> (10년차와 동일) (월봉급액×68%×0.5) × 90`;
                 
-                let excessMonths = remainingMonths - 120;
-                let excessFactor = excessMonths * 0.25;
-                factor = 75 + excessFactor;
+                // (검색 결과 확인) 10년을 초과하는 기간은 수당을 지급하지 않음 = 10년(120개월)과 동일
+                // 120개월일 때 factor = 60 + (120-60)/2 = 60 + 30 = 90
+                factor = 90; 
                 payout = baseAmount * factor;
                 
-                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; 75 + ( (${remainingMonths} - 120) × 0.25 )<br> &nbsp; = 75 + ${excessFactor} = <strong>${factor}</strong>`;
+                calcStep2 = `2. (B) 환산 월수:<br> &nbsp; 10년 초과 시 <strong>90</strong>으로 고정 (10년차와 동일)`;
             }
 
             // 최종 payout 반올림
@@ -435,6 +435,7 @@
             resultFormulaElement.innerHTML = finalFormulaString; // innerHTML로 설정
             resultElement.style.display = 'block'; // 결과창 표시
         }
+        // --- ▲▲▲ 계산 로직 수정 완료 ▲▲▲ ---
     </script>
 
 </body>
