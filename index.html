@@ -56,17 +56,21 @@
         }
         .input-group input {
             text-align: right;
+            /* ▼▼▼ [수정됨] 겹침 방지를 위해 오른쪽 패딩 추가 ▼▼▼ */
+            padding-right: 3.5rem; /* '원' 또는 '개월' 텍스트가 들어갈 공간 확보 */
         }
         .input-wrapper {
             position: relative;
         }
         .input-wrapper .unit {
             position: absolute;
-            right: 1rem;
+            right: 1rem; /* ▼▼▼ [수정됨] 오른쪽 여백 조정 ▼▼▼ */
             top: 50%;
             transform: translateY(-50%);
             color: #777;
             pointer-events: none;
+            /* ▼▼▼ [추가됨] 텍스트 크기 조정 가능성 고려 ▼▼▼ */
+            white-space: nowrap; /* 줄바꿈 방지 */
         }
         .korean-text {
             font-size: 0.9rem;
@@ -340,7 +344,7 @@
             }
         }
 
-        // --- ▼▼▼ [수정됨] 68% (구 산식) 기준 계산 로직 ▼▼▼ ---
+        // --- 68% (구 산식) 기준 계산 로직 ---
         function calculate() {
             const salaryInput = document.getElementById('monthlySalary');
             const monthsInput = document.getElementById('remainingMonths');
@@ -435,8 +439,8 @@
             resultFormulaElement.innerHTML = finalFormulaString; // innerHTML로 설정
             resultElement.style.display = 'block'; // 결과창 표시
         }
-        // --- ▲▲▲ 계산 로직 수정 완료 ▲▲▲ ---
     </script>
 
 </body>
 </html>
+```http://googleusercontent.com/image_generation_content/0
